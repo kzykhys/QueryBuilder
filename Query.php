@@ -16,7 +16,7 @@
  * </code>
  * 
  * @author valnur
- * @version 1.0
+ * @version 1.0.1
  * @license LGPLv3
  * @copyright (C) 2001 valnur. All rights reserved.
  * @filesource
@@ -33,7 +33,8 @@ class Query {
 	private static
 		$pdo                 = false,
 		$transaction_began   = false,
-		$instance_stack      = array()
+		$instance_stack      = array(),
+		$sql_history         = array()
 	;
 
 	private
@@ -194,11 +195,28 @@ class Query {
 	 */
 	public static function sql($sql, $assignment = array()) {
 		if(!self::$pdo) return false;
+		self::$sql_history[] = array('sql' => $sql, 'assignment' => $assignment);
 		$statement = self::$pdo->prepare($sql);
 		if($statement->execute($assignment)) {
 			return $statement;
 		} else {
 			return false;
+		}
+	}
+
+	public static function getSQLHistory() {
+		return self::$sql_history;
+	}
+
+	/**
+	 * Returns number of rows the statement would have returned without the LIMIT
+	 *
+	 * @return integer
+	 */
+	public static function getFoundRows() {
+		$statement = self::sql('select found_rows()');
+		if($statement) {
+			return (int) $statement->fetchColumn();
 		}
 	}
 
@@ -536,6 +554,15 @@ class Query {
 		return $this->query_string;
 	}
 
+	/**
+	 * Returns errors
+	 *
+	 * @return array
+	 */
+	public function getErrors() {
+		return $this->errors;
+	}
+
 	/*
 	 * Helper Method: setupWhere()
 	 */
@@ -556,6 +583,9 @@ class Query {
 			} else {
 				$this->sql_where[] = $prefix . $args[0];
 			}
+		} elseif($num_args == 2 && is_array($args[1])) {
+			$this->sql_where[] = $prefix . $args[0];
+			$this->bind_where = array_merge($this->bind_where, $args[1]);
 		} else {
 			$this->sql_where[] = $prefix . array_shift($args);
 			$this->bind_where = array_merge($this->bind_where, $args);
@@ -692,10 +722,12 @@ class Query {
 			$this->addToken(sprintf('count(%s)', $this->sql_columns[0]));
 			return;
 		}
-		$token = implode(',', $this->sql_columns);
 		if($brase) {
+			foreach($this->sql_columns as $_col) $_columns[] = '`' . $_col . '`';
+			$token = implode(',', $_columns);
 			$this->addToken('(', $token, ')');
 		} else {
+			$token = implode(',', $this->sql_columns);
 			$this->addToken($token);
 		}
 	}
@@ -715,7 +747,7 @@ class Query {
 		$this->addToken('set');
 		$set = array();
 		foreach($this->sql_columns as $column) {
-			$set[] = $column . ' = ?';
+			$set[] = '`' . $column . '` = ?';
 		}
 		$this->addToken(implode(', ', $set));
 	}
