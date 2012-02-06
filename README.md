@@ -20,6 +20,7 @@ Query::connect(host, user, password, database);
 Executes SELECT statement
 
 ``` php
+<?php
 $result = Query::select()
  ->from('table t')
   ->where('id = ?', $id)
@@ -32,6 +33,7 @@ $result = Query::select()
 Executes INSERT statement
 
 ``` php
+<?php
 Query::insert()
  ->into('table')
   ->columns(array('id', 'title', 'desc'))
@@ -43,6 +45,7 @@ Query::insert()
 Executes UPDATE statement
 
 ``` php
+<?php
 Query::update()
  ->table('table')
   ->columns(array('id', 'title', 'desc'))
@@ -55,6 +58,7 @@ Query::update()
 Executes DELETE statement
 
 ``` php
+<?php
 Query::delete()
  ->table('table')
   ->where('id = ?', $id)
@@ -66,6 +70,7 @@ Query::delete()
 Executes SELECT statement for pagination
 
 ``` php
+<?php
 Query::select()
  ->calcFoundRows()
   ->from('posts p')
@@ -80,6 +85,7 @@ Query::select()
 Transactions
 
 ``` php
+<?php
 Query::begin();
 
 Query::insert()
@@ -96,6 +102,7 @@ Query::rollback();
 Count rows
 
 ``` php
+<?php
 Query::select()
  ->from('table')
   ->count();
@@ -106,6 +113,7 @@ Query::select()
 Execute SQL manually
 
 ``` php
+<?php
 Query::sql('desc mydb.posts');
 // return PDOStatement
 ```
