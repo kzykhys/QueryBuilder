@@ -12,7 +12,10 @@ Getting started
 
 Connect to MySQL
 
-	Query::connect(host, user, password, database);
+``` php
+<?php
+Query::connect(host, user, password, database);
+```
 
 Executes SELECT statement
 
