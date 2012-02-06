@@ -16,13 +16,15 @@ Connect to MySQL
 
 Executes SELECT statement
 
-	$result = Query::select()
-	 ->from('table t')
-	  ->where('id = ?', $id)
-	   ->orderBy('updated desc')
-	    ->limit(20)
-	     ->fetchAll();
-	//returns array
+```php
+$result = Query::select()
+ ->from('table t')
+  ->where('id = ?', $id)
+   ->orderBy('updated desc')
+    ->limit(20)
+     ->fetchAll();
+//returns array
+```
 
 Executes INSERT statement
 
